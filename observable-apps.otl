@@ -1,0 +1,559 @@
+Logs are not human scale - How to build observable systems
+	Logs are not human scale
+		<IMAGE.right-half
+		<bizcard.png
+		How to build observable systems
+	Observability
+		>MARKDOWN.incremental
+		>What is it?
+		>
+		>Is it the same as monitoring?
+		>
+		>Is it a kind of tool?
+		>
+		>Definitely something to do with devops
+		>
+		>* sorry
+	Observable systems
+		>MARKDOWN.incremental
+		>## the internal states of [an observable system] can be inferred from knowledge of its external outputs {.pull-quote}
+		>
+		>Can you see what it's doing?
+		>
+		>If it starts squeaking, can you find out why?
+	Where we're going
+		>COMMENT
+		>https://www.flickr.com/photos/oatsy40/6375359117
+		<IMAGE.right-half
+		<sign.jpg
+		>MARKDOWN
+		>## Why observable?
+		>
+		>## How to observable
+		>
+		>## Observable vs Controllable
+	What to expect
+		Philosophy
+		War stories
+		Techniques
+		Probably not novel technology
+		Tying together
+	Where we're going
+		<IMAGE.right-half
+		<sign.jpg
+		>MARKDOWN
+		>## Why observable? {.highlight}
+		>
+		>## How to observable
+		>
+		>## Observable vs Controllable
+	Why build observable software?
+		Our code already has to be
+			reliable
+			fast
+			usable
+			readable
+			maintainable
+			operable?
+	Why build observable cars
+		>COMMENT
+		>https://www.flickr.com/photos/fontplaydotcom/502935071
+		<IMAGE.left-half
+		<car-dashboard.jpg
+		>MARKDOWN.incremental
+		>dashboard shows me what the car is doing
+		>
+		>*while* i'm driving
+		>
+		>learn what *“normal”* looks like
+		>
+		> * rpm
+		> * temperature
+		> * fuel
+		>
+		>tells me when I need to look deeper
+	Why build observable cars
+		<IMAGE.left-half
+		<car-dashboard.jpg
+		>MARKDOWN.incremental
+		>helps me understand the car
+		>
+		>beyond mere function
+		>
+		>so I can drive it better
+	Why build observable systems
+		>COMMENT
+		>https://www.flickr.com/photos/dark-wretch/4737984596
+		<IMAGE.left-half
+		<motherboard.jpg
+		>MARKDOWN.incremental
+		>systems that show us what they are doing
+		>
+		>*while* they are running
+		>
+		>learn what *“normal”* looks like
+		>
+		>show when we need to look deeper
+	Why build observable systems
+		<IMAGE.left-half
+		<motherboard.jpg
+		>MARKDOWN.incremental
+		>observable systems help us understand them
+		>
+		>so they are more operable
+		>
+		>and more maintainable!
+	You don't understand it until it's in production
+		>COMMENT
+		>By Gnome-fs-client.svg: David VignoniGnome-fs-server.svg: David
+		>Vignoniderivative work: Calimo (talk) -
+		>Gnome-fs-client.svgGnome-fs-server.svg, LGPL,
+		>https://commons.wikimedia.org/w/index.php?curid=15782858
+		<IMAGE.left-half.whitebg
+		<network-diagram.svg
+		>MARKDOWN.incremental
+		>What does “normal” look like?
+		>
+		>How does it hum?
+		>
+		>What does it do when it fails?
+		>
+		>What does it do when *part of it* fails?
+		>
+		>Observability lets us... observe
+	A start
+		>MARKDOWN
+		>Graph all the things!
+	A start
+		>MARKDOWN
+		>Graph ~~all the~~ these 3 things:
+		>
+		>* Latency
+		>* Traffic
+		>* Errors
+	A start
+		>MARKDOWN
+		>Graph ~~all the~~ these 3 things:
+		>
+		>* Latency
+		>* Traffic
+		>* Errors
+		>
+		>“Golden Signals”
+	A start
+		<IMAGE.right-half
+		<temperature-gauge.jpg
+		>MARKDOWN
+		>Graph ~~all the~~ these 3 things:
+		>
+		>* Latency
+		>* Traffic
+		>* Errors
+		>
+		>“Golden Signals”
+		<COMMENT
+		<separator
+		>MARKDOWN.incremental
+		>What about the work your system does?
+		>
+		>What about the users of your system?
+	"But I have an ops team for that!"
+		>MARKDOWN.incremental
+		>You need to be better friends with your ops team :)
+		>
+		> * they would love more observable systems
+		> * shared language and data help dev and ops collaborate better
+		>
+		>But why wouldn't you want to understand your system better?
+		>
+		>You don't understand it until it's in production
+	Where we're going
+		<IMAGE.right-half
+		<sign.jpg
+		>MARKDOWN
+		>## Why observable?
+		>
+		>## How to observable {.highlight}
+		>
+		>## Observable vs Controllable
+	How to build observable systems
+		Introspection endpoints
+		Logging
+		Exception notification
+		Structured logging
+	Status endpoint
+		<BASH
+		<curl https://host0.myapp.internal/x/status
+		>COMMENT
+		>separator
+		<JSON
+		<{"status":"ok"}
+		>MARKDOWN.incremental
+		>Even a socket timeout or 502 error is helpful
+		>
+		>Can extend this - e.g. lengthy startup procedure
+	Version endpoint
+		<BASH
+		<curl https://host1.myapp.internal/x/version
+		>COMMENT
+		>separator
+		<JSON
+		<{"build": 1234, "git_sha": "321face"}
+		>MARKDOWN.incremental
+		>“Did my fix roll out yet?”
+		>
+		>“Are all nodes on the same version?”
+	Internal stats endpoint
+		<BASH
+		<curl https://host2.myapp.internal/x/info
+		>COMMENT
+		>separator
+		<JSON
+		<{
+		<  "requests": 4074,
+		<  "errors": 5,
+		<  "cache_hits": 15923,
+		<  "cache_misses": 24,
+		<}
+	Logging
+		>COMMENT
+		>https://www.flickr.com/photos/goincase/2886377346
+		<IMAGE.full
+		<logs.jpg
+	Logging and observable systems
+		>MARKDOWN.incremental
+		>A great way of making a system more observable...
+		>
+		>... is to have it write down what it's doing.
+	Logging
+		<LOG
+		<11:32:33 [INFO ] Processing request for user 42
+		<11:32:33 [WARN ] sprocket cache timed out!
+		<11:32:33 [ERROR] NullPointerException in adjustSprocket()
+	Logging
+		<LOG
+		<11:32:33 [INFO ] Processing request for user 42
+		<11:32:33 [WARN ] sprocket cache timed out!
+		<11:32:33 [INFO ] Request processed successfully
+		<11:32:33 [INFO ] Processing request for user 43
+		<11:32:33 [WARN ] sprocket cache timed out!
+		<11:32:33 [INFO ] Processing request for user 44
+		<11:32:33 [INFO ] Request processed successfully
+		<11:32:34 [ERROR] NullPointerException in adjustSprocket()
+		<11:32:34 [INFO ] Processing request for user 43
+		<11:32:34 [INFO ] Request processed successfully
+		<11:32:34 [INFO ] Processing request for user 44
+	Logging
+		<LOG
+		<11:32:33 [INFO ] Processing request for user 42
+		<11:32:33 [INFO ] Initializing sprockets
+		<11:32:33 [WARN ] SprocketImpl.init() is deprecated
+		<11:32:33 [WARN ] sprocket cache timed out!
+		<11:32:33 [INFO ] Request processed successfully
+		<11:32:33 [INFO ] Processing request for user 43
+		<11:32:33 [INFO ] Initializing sprockets
+		<11:32:33 [WARN ] SprocketImpl.init() is deprecated
+		<11:32:33 [WARN ] sprocket cache timed out!
+		<11:32:33 [INFO ] Processing request for user 44
+		<11:32:33 [INFO ] Initializing sprockets
+		<11:32:33 [WARN ] SprocketImpl.init() is deprecated
+		<11:32:33 [INFO ] Request processed successfully
+		<11:32:34 [ERROR] NullPointerException in adjustSprocket()
+		<11:32:34 [ERROR] THIS SHOULD NEVER HAPPEN!
+		<11:32:34 [INFO ] Processing request for user 43
+		<11:32:34 [INFO ] Initializing sprockets
+		<11:32:34 [WARN ] SprocketImpl.init() is deprecated
+		<11:32:34 [INFO ] Request processed successfully
+		<11:32:34 [INFO ] Processing request for user 44
+	Logging
+		<LOG
+		<09:00 [INFO ] Starting service on port 8080
+		<15:34 [ERROR] Exception: the widget exploded!
+		<15:34 [INFO ] Shutting down service
+	Logging in theory
+		>MARKDOWN.incremental
+		>“Log every time the system does work”
+		>
+		>“Don't log as ERROR unless it's actionable”
+		>
+		>“Only output WARNING and above in production”
+	Logging in practice
+		>MARKDOWN.incremental
+		>“I can't find the error because this log file is full of identical
+		>warnings”
+		>
+		>“Man, I wish we'd enabled DEBUG logging *before* it crashed!”
+		>
+		>“Let's spend a sprint cleaning up our logs”
+		>
+		>“The node was down because logs filled up the disk”
+		>
+		>“*All* nodes were down because logs filled up the disks”
+	The problem
+		>COMMENT
+		>https://www.flickr.com/photos/134832191@N08/28446630302
+		<IMAGE.top-half.full
+		<too-many-logs.jpg
+		>MARKDOWN.incremental
+		>You're reading your logs
+		>
+		>## Stop reading your logs!
+	Logs are not human scale
+		<IMAGE.top-half.full
+		<too-many-logs.jpg
+		>MARKDOWN.incremental
+		>A machine is generating your logs...
+		>
+		>Why is a human reading them?
+		>
+		>There are too many of them and you are too slow
+	A machine that reads logs
+		<BASH
+		<grep -F '[ERROR]'
+		>MARKDOWN.incremental
+		>This is about the simplest machine we could imagine
+		>
+		>We can imagine more ☺
+	Exception notification
+		>MARKDOWN.incremental
+		>e.g. Bugsnag, Sentry, etc
+		>
+		>Send it your errors
+		>
+		>It notifies you when it sees a new one
+		>
+		>“Inbox” workflow for tracking errors
+		>
+		>Understands stack traces, Javascript source maps, etc
+		>
+		>Use these!
+	Intermittent errors and warnings
+		>MARKDOWN.incremental
+		>Assumes most errors are bugs
+		>
+		> * i.e. your fault
+		>
+		>What about errors you can't fix?
+		>
+		> * e.g. intermittent failures calling 3rd party services
+		>
+		>What about errors you won't fix?
+		>
+		> * aka "warnings"
+		> * you might not fix these ever
+		> * don't want to ignore them completely either
+	Intermittent errors and warnings
+		>MARKDOWN.incremental
+		>Often really useful information
+		>
+		>Really hard to manage
+		>
+		>You'll always have more exceptions than you have time to fix
+		>
+		>You at least want to know frequency/impact
+	Exception notification and logs
+		>MARKDOWN
+		>Recording that an exception happened looks pretty similar to logging:
+		<LOG
+		<[ERROR] NullPointerException in adjustSprocket()
+		>MARKDOWN.incremental
+		>Exception notification services are machines reading your logs
+		>
+		>But we're *structuring the information* for machine consumption
+	Structured logging
+		<JSON
+		<{
+		<  "hostname": "host1.myapp",
+		<  "app": "myapp",
+		<  "error": "NullPointerException",
+		<  "stack_trace": [["adjustSprocket()", 318], ...],
+		<}
+		>MARKDOWN.incremental
+		>If you're logging for machines to read...
+		>
+		>Write logs machines are good at reading
+		>
+		>Parsing strings is slow and imprecise
+		>
+		>Anything that can write JSON will do
+	Structured logging
+		<JSON
+		<{
+		<  "hostname": "host1.myapp",
+		<  "app": "myapp",
+		<  "error": "NullPointerException",
+		<  "stack_trace": [["adjustSprocket()", 318], ...],
+		<}
+		>MARKDOWN.internal
+		>But don't stop there!
+		>
+		>No longer constrained by an 80 character terminal
+		>
+		>e.g. `user_id`, `mobile_platform`, `items_in_shopping_cart`
+	Log analysis
+		>MARKDOWN.incremental
+		>Now our logs are structured...
+		>
+		>We can do analytics on them
+		>
+		>“Which item has the worst cache hit rate?”
+		>
+		>“Show me the error rate for large shopping carts”
+	Log analysis and warnings
+		>MARKDOWN.incremental
+		>Look for trends and correlations:
+		>
+		>“How often does that "sprocket cache" warning occur?”
+		>
+		>“How many *users* does it affect?”
+		>
+		>“Does it correlate with high traffic?”
+		>
+		>“Does it only happen to certain hosts?”
+		>
+		>“Alert me if it starts happening more than once a minute.”
+	Tools for log analysis
+		>MARKDOWN.incremental
+		>Splunk, ELK, Loggly, Honeycomb
+		>
+		>Google BigQuery
+		>
+		>Kafka Streams
+		>
+		>Hadoop ecosystem (e.g. Impala)
+	Log levels revisited
+		>MARKDOWN.incremental
+		>We could just add `"level": "ERROR"`
+		>
+		>But now machines are reading our logs, can we do better?
+		>
+		>DEBUG, INFO, WARNING, ERROR
+		>
+		> * very coarse distinctions
+		> * loosely defined
+	The spectrum of interestingness
+		>MARKDOWN.incremental
+		>Not all events are equally interesting:
+		>
+		>A host outage
+		>
+		>A customer couldn’t buy your product because your code threw an
+		>exception
+		>
+		>A call to the payment service timed out, but you retried and
+		>succeeded
+		>
+		>A customer bought a product successfully
+	Sample rate
+		>MARKDOWN.incremental
+		>Annotate logs with a measure of how interesting they are
+		>
+		>Instead of a crude log level...
+		>
+		>Try a *number*
+		>
+		>`"sample_rate": 100`
+		>
+		> * “this log represents 100 logs just like it”
+	Dynamic sampling
+		>MARKDOWN.incremental
+		>`"sample_rate": 100`
+		>
+		> * “this event represents 100 events just like it”
+		>
+		>Now you can throw away the other 99
+		>
+		> * because you're not reading your logs
+		>
+		>Don't pay to store or process them
+		>
+		>"Dynamic": choose sample rate based on interestingness
+	Dynamic sampling and tools
+		>MARKDOWN.incremental
+		>Analysis tools need to understand sample rate
+		>
+		>Easy if you're rolling your own
+		>
+		> * Kafka Streams / BigQuery / Hadoop etc
+		>
+		>Some tools understand sampling natively
+		>
+		> * e.g. Honeycomb
+	Logging recap
+		<IMAGE.top-half.full
+		<too-many-logs.jpg
+		Write logs for machines to analyse
+		Use an exception notification service
+		Stop reading your logs
+		Ask questions of your logs
+	Where we're going
+		<IMAGE.right-half
+		<sign.jpg
+		>MARKDOWN
+		>## Why observable?
+		>
+		>## How to observable
+		>
+		>## Observable vs Controllable {.highlight}
+	Controllable systems
+		>MARKDOWN.incremental
+		>## an external input can move the internal state of a system {.pull-quote}
+		>
+		>Controllability is the dual of observability
+		>
+		>Goes together nicely!
+	Controllable systems
+		<BASH
+		<curl -XPUT -dDEBUG https://host2.myapp.internal/x/log_level
+		>MARKDOWN.incremental
+		>Set log level dynamically
+	Feature flags
+		>MARKDOWN.incremental
+		>Turn parts of your system on and off at runtime
+		>
+		>... or for certain users
+		>
+		>... or for 10% of traffic
+		>
+		>Deploy both code paths
+		>
+		>Check at runtime
+	Feature flags and observability
+		>MARKDOWN.incremental
+		>How does being able to *control* the system make it more observable?
+		>
+		>Poke it and see how it responds!
+		>
+		>You don't understand it until it's in production
+	Testing in production
+		>MARKDOWN.incremental
+		>Enable features just for your team
+		>
+		>Turn off that new feature, just for one user
+		>
+		>Ramp the new change to 10% and compare
+		>
+		>See also:
+		>
+		> * canary deploys
+		> * programmable traffic routing
+		> * chaos engineering
+	Takeaways
+		Observable systems help us understand them
+			You don't understand it until it's in production
+			Learn what normal looks like
+		Logs are not human scale
+			Structured logging
+			Dynamic sampling
+		Feature flags and observability make a great pair
+	Credits
+		<IMAGE.right-half
+		<bizcard.png
+		>MARKDOWN
+		> * road sign - oatsy40 (Flickr)
+		> * car dashboard - fontplaydotcom (Flickr)
+		> * motherboard - dark-wretch (Flickr)
+		> * temperature gauge - exfordy (Flickr)
+		> * log pile - goincase (Flickr)
+		> * big log pile - 134832191@N08 (Flickr)
+	Fin
